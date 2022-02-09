@@ -8,8 +8,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class HelloController {
 
 	@RequestMapping("/")
-	@ResponseBody
 	public String welcome() {
-		return "Welcome ! Spring Security";
+		return "Welcome";
+	}
+	
+	@RequestMapping("/loginpage")
+	public String loginpage() {
+		return "loginpage";
+	}
+	
+	@RequestMapping("/fail")
+	@ResponseBody
+	public String fail() {
+		return "fail";
 	}
 }
