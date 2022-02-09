@@ -22,7 +22,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// 1. 查詢用戶是否存在 ?
 		Optional<Entry<String, Map<String, String>>> opt = userDao.users.entrySet().stream()
-				.filter(e -> e.getKey().equals("username")).findFirst();
+				.filter(e -> e.getKey().equals(username)).findFirst();
 
 		if (!opt.isPresent())
 			throw new UsernameNotFoundException("Not found!");
