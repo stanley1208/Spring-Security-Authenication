@@ -11,12 +11,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
+import com.example.demo.handle.MyAccessDeniedHandler;
+
 // 若要自訂登入邏輯則要繼承 WebSecurityConfigurerAdapter
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
+	@Autowired
+	private MyAccessDeniedHandler myAccessDeniedHandler;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -35,6 +40,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		http.authorizeHttpRequests()
 			// 不需要被認證的頁面: /loginpage
 			.antMatchers("/loginpage").permitAll()
+			// 權限判斷
+			// 必須要有 admin 權限可以訪問
+			.antMatchers("/adminpage").hasAnyAuthority("admin")
+			// 必須要有 manager 角色才可以訪問
+			.antMatchers("/managerpage").hasRole("manager")
+			// 其他指定任一角色都可以訪問
+			.antMatchers("/employeepage").hasAnyRole("manager","employee")
 			// 其他的都要被認證
 			.anyRequest().authenticated();
 		
@@ -45,6 +57,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.deleteCookies("JSESSIONID")
 				.logoutSuccessUrl("/loginpage")
 				.logoutRequestMatcher(new AntPathRequestMatcher("logout")); // 可以使用任何的 HTTP 方法登出
+		
+		// 異常處理
+		http.exceptionHandling()
+		//.accessDeniedPage("/異常處理頁面") // Homework
+		.accessDeniedHandler(myAccessDeniedHandler);
+		
+		// 勿忘我(remember-me)
+		http.rememberMe()
+			.userDetailsService(userDetailsService)
+			.tokenValiditySeconds(60); // 通常都會大於 session timeout 的時間
 	}
 
 	// 注意!規定!要建立密碼演算的實例
